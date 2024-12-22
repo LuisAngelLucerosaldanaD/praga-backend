@@ -1,4 +1,5 @@
 export interface CreateUserDto {
+  id: string | null;
   name: string;
   lastname: string;
   document: string;
@@ -12,6 +13,4 @@ export interface CreateUserDto {
   status: number;
   role: string;
   birth_date: string;
-  picture: string;
-  block_date: string;
 }

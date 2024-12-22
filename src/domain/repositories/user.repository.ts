@@ -1,15 +1,15 @@
-import { IUser } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
 
 export interface UserRepository {
-  createUser(user: IUser): Promise<IUser | null>;
+  createUser(user: User): Promise<boolean>;
 
-  updateUser(user: IUser): Promise<IUser | null>;
+  updateUser(user: User): Promise<User | null>;
 
   deleteUser(id: string): Promise<boolean>;
 
-  getUserById(id: string): Promise<IUser | null>;
+  getUserById(id: string): Promise<User | null>;
 
-  getUserByUsername(username: string): Promise<IUser | null>;
+  getUserByUsername(username: string): Promise<User | null>;
 
-  getUsers(): Promise<IUser[]>;
+  getUsers(): Promise<User[]>;
 }

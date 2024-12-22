@@ -2,6 +2,7 @@ import { Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { ModuleRef } from '@nestjs/core';
+import { UserRepositoryService } from './services/user.repository.service';
 
 const databasePoolFactory = async (configService: ConfigService) => {
   return new Pool({
@@ -20,8 +21,9 @@ const databasePoolFactory = async (configService: ConfigService) => {
       inject: [ConfigService],
       useFactory: databasePoolFactory,
     },
+    UserRepositoryService,
   ],
-  exports: [],
+  exports: [UserRepositoryService],
 })
 export class DatabaseModule implements OnApplicationShutdown {
   private readonly logger = new Logger(DatabaseModule.name);

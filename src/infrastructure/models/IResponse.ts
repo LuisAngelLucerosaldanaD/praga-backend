@@ -1,4 +1,4 @@
-export class Response<T = any> {
+export class IResponse<T = any> {
   public error: boolean;
   public data: T;
   public message: string;

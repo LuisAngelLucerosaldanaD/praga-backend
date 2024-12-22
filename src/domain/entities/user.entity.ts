@@ -15,8 +15,9 @@ export class User extends BaseTable {
   status: number;
   role: string;
   birth_date: string;
-  picture: string;
-  block_date: string;
+  picture: string | null;
+  block_date: string | null;
+  failed_attempts: number;
 
   constructor(
     id: string,
@@ -33,8 +34,6 @@ export class User extends BaseTable {
     status: number,
     role: string,
     birth_date: string,
-    picture: string,
-    block_date: string,
   ) {
     super();
     this.id = id;
@@ -51,7 +50,6 @@ export class User extends BaseTable {
     this.status = status;
     this.role = role;
     this.birth_date = birth_date;
-    this.picture = picture;
-    this.block_date = block_date;
+    this.user_creator = 'b7c90251-8f59-4970-ab8e-c1e9a52bdc3f';
   }
 }

@@ -5,7 +5,6 @@ export interface UpdateDto {
   document: string;
   type_document: number;
   username: string;
-  password: string;
   email: string;
   cellphone: string;
   code: string;
@@ -13,6 +12,4 @@ export interface UpdateDto {
   status: number;
   role: string;
   birth_date: string;
-  picture: string;
-  block_date: string;
 }

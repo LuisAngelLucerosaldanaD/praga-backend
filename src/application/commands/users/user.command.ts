@@ -2,21 +2,22 @@ import { UserRepositoryService } from '../../../infrastructure/database/services
 import { CreateUserDto } from '../../dtos/users/create.dto';
 import { User } from '../../../domain/entities/user.entity';
 import { v4 as uuidV4, validate } from 'uuid';
-import { Response } from '../../../infrastructure/models/response';
+import { IResponse } from '../../../infrastructure/models/IResponse';
 import { UpdateDto } from '../../dtos/users/update.dto';
+import { HashText } from '../../../shared/utils/security/security';
 
 export class UserCommand {
   constructor(private readonly userRepositoryService: UserRepositoryService) {}
 
-  async create(dto: CreateUserDto): Promise<Response<User>> {
+  async create(dto: CreateUserDto): Promise<IResponse<User>> {
     const newUser = new User(
-      uuidV4(),
+      dto.id || uuidV4(),
       dto.name,
       dto.lastname,
       dto.document,
       dto.type_document,
       dto.username,
-      dto.password,
+      await HashText(dto.password),
       dto.email,
       dto.cellphone,
       dto.code,
@@ -24,21 +25,28 @@ export class UserCommand {
       dto.status,
       dto.role,
       dto.birth_date,
-      dto.picture,
-      dto.block_date,
     );
 
     try {
-      await this.userRepositoryService.createUser(newUser);
-      return new Response(
-        false,
-        newUser,
-        'User created successfully',
-        201,
+      const isCreated = await this.userRepositoryService.createUser(newUser);
+      if (isCreated) {
+        return new IResponse(
+          false,
+          newUser,
+          'User created successfully',
+          201,
+          'User',
+        );
+      }
+      return new IResponse(
+        true,
+        null,
+        'An error occurred while creating the user',
+        500,
         'User',
       );
     } catch (error) {
-      return new Response(
+      return new IResponse(
         true,
         null,
         'An error occurred while creating the user, err: ' + error,
@@ -48,7 +56,7 @@ export class UserCommand {
     }
   }
 
-  async update(dto: UpdateDto): Promise<Response<User>> {
+  async update(dto: UpdateDto): Promise<IResponse<User>> {
     const newUser = new User(
       dto.id,
       dto.name,
@@ -56,7 +64,7 @@ export class UserCommand {
       dto.document,
       dto.type_document,
       dto.username,
-      dto.password,
+      '',
       dto.email,
       dto.cellphone,
       dto.code,
@@ -64,13 +72,11 @@ export class UserCommand {
       dto.status,
       dto.role,
       dto.birth_date,
-      dto.picture,
-      dto.block_date,
     );
 
     try {
       await this.userRepositoryService.updateUser(newUser);
-      return new Response(
+      return new IResponse(
         false,
         newUser,
         'User updated successfully',
@@ -78,7 +84,7 @@ export class UserCommand {
         'User',
       );
     } catch (error) {
-      return new Response(
+      return new IResponse(
         true,
         null,
         'An error occurred while updating the user, err: ' + error,
@@ -88,13 +94,23 @@ export class UserCommand {
     }
   }
 
-  async delete(id: string): Promise<Response<boolean>> {
+  async delete(id: string): Promise<IResponse<boolean>> {
     try {
       if (!validate(id)) {
-        return new Response(true, false, 'Invalid user id', 400, 'User');
+        return new IResponse(true, false, 'Invalid user id', 400, 'User');
       }
-      await this.userRepositoryService.deleteUser(id);
-      return new Response(
+      const isCreated = await this.userRepositoryService.deleteUser(id);
+      if (!isCreated) {
+        return new IResponse(
+          true,
+          false,
+          'An error occurred while deleting the user',
+          500,
+          'User',
+        );
+      }
+
+      return new IResponse(
         false,
         true,
         'User deleted successfully',
@@ -102,7 +118,7 @@ export class UserCommand {
         'User',
       );
     } catch (error) {
-      return new Response(
+      return new IResponse(
         true,
         false,
         'An error occurred while deleting the user, err: ' + error,
@@ -112,22 +128,37 @@ export class UserCommand {
     }
   }
 
-  async getUserById(id: string): Promise<Response<User>> {
+  async getUserById(id: string): Promise<IResponse<User>> {
     if (!validate(id)) {
-      return new Response(true, null, 'Invalid user id', 400, 'User');
+      return new IResponse(true, null, 'Invalid user id', 400, 'User');
     }
 
     try {
       const user = await this.userRepositoryService.getUserById(id);
       if (!user) {
-        return new Response(true, null, 'User not found', 404, 'User');
+        return new IResponse(true, null, 'User not found', 404, 'User');
       }
-      return new Response(false, user, 'User found', 200, 'User');
+      return new IResponse(false, user, 'User found', 200, 'User');
     } catch (error) {
-      return new Response(
+      return new IResponse(
         true,
         null,
         'An error occurred while getting the user, err: ' + error,
+        500,
+        'User',
+      );
+    }
+  }
+
+  async getUsers(): Promise<IResponse<User[]>> {
+    try {
+      const users = await this.userRepositoryService.getUsers();
+      return new IResponse(false, users, 'Users found', 200, 'User');
+    } catch (error) {
+      return new IResponse(
+        true,
+        null,
+        'An error occurred while getting the users, err: ' + error,
         500,
         'User',
       );

@@ -1,4 +1,5 @@
 import { BaseTable } from '../../infrastructure/models/base-table';
+import { CompareHash } from '../../shared/utils/security/security';
 
 export class User extends BaseTable {
   id: string;
@@ -51,5 +52,12 @@ export class User extends BaseTable {
     this.role = role;
     this.birth_date = birth_date;
     this.user_creator = 'b7c90251-8f59-4970-ab8e-c1e9a52bdc3f';
+  }
+
+  public static async validatePassword(
+    password: string,
+    hash: string,
+  ): Promise<boolean> {
+    return await CompareHash(password, hash);
   }
 }

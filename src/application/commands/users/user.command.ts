@@ -5,11 +5,16 @@ import { v4 as uuidV4, validate } from 'uuid';
 import { IResponse } from '../../../infrastructure/models/IResponse';
 import { UpdateDto } from '../../dtos/users/update.dto';
 import { HashText } from '../../../shared/utils/security/security';
+import { ICredentials, ISession } from '../../dtos/auth';
+import { JwtService } from '@nestjs/jwt';
 
 export class UserCommand {
-  constructor(private readonly userRepositoryService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async create(dto: CreateUserDto): Promise<IResponse<User>> {
+  public async create(dto: CreateUserDto): Promise<IResponse<boolean>> {
     const newUser = new User(
       dto.id || uuidV4(),
       dto.name,
@@ -28,11 +33,11 @@ export class UserCommand {
     );
 
     try {
-      const isCreated = await this.userRepositoryService.createUser(newUser);
+      const isCreated = await this.userService.createUser(newUser);
       if (isCreated) {
         return new IResponse(
           false,
-          newUser,
+          true,
           'User created successfully',
           201,
           'User',
@@ -40,7 +45,7 @@ export class UserCommand {
       }
       return new IResponse(
         true,
-        null,
+        false,
         'An error occurred while creating the user',
         500,
         'User',
@@ -48,7 +53,7 @@ export class UserCommand {
     } catch (error) {
       return new IResponse(
         true,
-        null,
+        false,
         'An error occurred while creating the user, err: ' + error,
         500,
         'User',
@@ -56,7 +61,7 @@ export class UserCommand {
     }
   }
 
-  async update(dto: UpdateDto): Promise<IResponse<User>> {
+  public async update(dto: UpdateDto): Promise<IResponse<User>> {
     const newUser = new User(
       dto.id,
       dto.name,
@@ -75,7 +80,7 @@ export class UserCommand {
     );
 
     try {
-      await this.userRepositoryService.updateUser(newUser);
+      await this.userService.updateUser(newUser);
       return new IResponse(
         false,
         newUser,
@@ -94,12 +99,12 @@ export class UserCommand {
     }
   }
 
-  async delete(id: string): Promise<IResponse<boolean>> {
+  public async delete(id: string): Promise<IResponse<boolean>> {
     try {
       if (!validate(id)) {
         return new IResponse(true, false, 'Invalid user id', 400, 'User');
       }
-      const isCreated = await this.userRepositoryService.deleteUser(id);
+      const isCreated = await this.userService.deleteUser(id);
       if (!isCreated) {
         return new IResponse(
           true,
@@ -128,13 +133,13 @@ export class UserCommand {
     }
   }
 
-  async getUserById(id: string): Promise<IResponse<User>> {
+  public async getUserById(id: string): Promise<IResponse<User>> {
     if (!validate(id)) {
       return new IResponse(true, null, 'Invalid user id', 400, 'User');
     }
 
     try {
-      const user = await this.userRepositoryService.getUserById(id);
+      const user = await this.userService.getUserById(id);
       if (!user) {
         return new IResponse(true, null, 'User not found', 404, 'User');
       }
@@ -150,15 +155,63 @@ export class UserCommand {
     }
   }
 
-  async getUsers(): Promise<IResponse<User[]>> {
+  public async getUsers(): Promise<IResponse<User[]>> {
     try {
-      const users = await this.userRepositoryService.getUsers();
+      const users = await this.userService.getUsers();
       return new IResponse(false, users, 'Users found', 200, 'User');
     } catch (error) {
       return new IResponse(
         true,
         null,
         'An error occurred while getting the users, err: ' + error,
+        500,
+        'User',
+      );
+    }
+  }
+
+  public async login(dto: ICredentials): Promise<IResponse<ISession | null>> {
+    try {
+      const user = await this.userService.getUserByUsername(dto.username);
+      if (!user) {
+        return new IResponse(
+          true,
+          null,
+          'User or password invalid',
+          404,
+          'User',
+        );
+      }
+
+      const isEquals = await User.validatePassword(dto.password, user.password);
+      if (!isEquals) {
+        return new IResponse(
+          true,
+          null,
+          'User or password invalid',
+          400,
+          'User',
+        );
+      }
+
+      const payload = { id: user.id, role: user.role };
+      const token = await this.jwtService.signAsync(payload);
+
+      return new IResponse(
+        false,
+        {
+          access_token: token,
+          refresh_token: token,
+        },
+        'User logged in successfully',
+        200,
+        'User',
+      );
+    } catch (error) {
+      return new IResponse(
+        true,
+        null,
+        'An error occurred while getting login, err: ' + error,
         500,
         'User',
       );

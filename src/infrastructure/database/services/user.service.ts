@@ -11,9 +11,9 @@ export class UserService implements UserRepository {
 
   public async createUser(user: User): Promise<boolean> {
     this.logger.debug(`Executing query: createUser (${user})`);
-    const query = `INSERT INTO auth.pr_users (id, name, lastname, document, type_document, username, password, email,
-                                              cellphone, code, points, status,
-                                              role, birth_date, user_creator)
+    const query = `INSERT INTO auth.users (id, name, lastname, document, type_document, username, password, email,
+                                           cellphone, code, points, status,
+                                           role, birth_date, user_creator)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                    RETURNING *`;
     try {
@@ -45,7 +45,7 @@ export class UserService implements UserRepository {
 
   public async updateUser(user: User): Promise<User | null> {
     this.logger.debug(`Executing query: updateUser (${user})`);
-    const query = `UPDATE auth.pr_users
+    const query = `UPDATE auth.users
                    SET name=$2,
                        lastname=$3,
                        document=$4,
@@ -92,7 +92,7 @@ export class UserService implements UserRepository {
   public async deleteUser(id: string): Promise<boolean> {
     this.logger.debug(`Executing query: deleteUser (${id})`);
     const query = `DELETE
-                   FROM auth.pr_users
+                   FROM auth.users
                    WHERE id = $1`;
     try {
       const res = await this.pool.query(query, [id]);
@@ -131,7 +131,7 @@ export class UserService implements UserRepository {
                           is_delete,
                           user_creator,
                           user_deleter
-                   FROM auth.pr_users
+                   FROM auth.users
                    WHERE id = $1`;
     try {
       const result = await this.pool.query(query, [id]);
@@ -170,7 +170,7 @@ export class UserService implements UserRepository {
                           is_delete,
                           user_creator,
                           user_deleter
-                   FROM auth.pr_users
+                   FROM auth.users
                    WHERE username = $1`;
     try {
       const result = await this.pool.query(query, [username]);
@@ -209,7 +209,7 @@ export class UserService implements UserRepository {
                           is_delete,
                           user_creator,
                           user_deleter
-                   FROM auth.pr_users`;
+                   FROM auth.users`;
     try {
       const result = await this.pool.query(query);
       this.logger.debug(`Executed query, result size ${result.rows.length}`);

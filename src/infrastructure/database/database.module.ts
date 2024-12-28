@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { ModuleRef } from '@nestjs/core';
 import { UserService } from './services/user.service';
 import { DictionaryService } from './services/dictionary.service';
+import { RoleService } from './services/role.service';
 
 const databasePoolFactory = async (configService: ConfigService) => {
   return new Pool({
@@ -24,8 +25,9 @@ const databasePoolFactory = async (configService: ConfigService) => {
     },
     UserService,
     DictionaryService,
+    RoleService,
   ],
-  exports: [UserService, DictionaryService],
+  exports: [UserService, DictionaryService, RoleService],
 })
 export class DatabaseModule implements OnApplicationShutdown {
   private readonly logger = new Logger(DatabaseModule.name);

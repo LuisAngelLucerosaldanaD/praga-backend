@@ -4,8 +4,8 @@ import { UserRepository } from '../../../domain/repositories/user.repository';
 import { User } from '../../../domain/entities/user.entity';
 
 @Injectable()
-export class UserRepositoryService implements UserRepository {
-  private readonly logger = new Logger(UserRepositoryService.name);
+export class UserService implements UserRepository {
+  private readonly logger = new Logger(UserService.name);
 
   constructor(@Inject('DATABASE_POOL') private pool: Pool) {}
 

@@ -1,4 +1,4 @@
-import { UserRepositoryService } from '../../../infrastructure/database/services/user.repository.service';
+import { UserService } from '../../../infrastructure/database/services/user.service';
 import { CreateUserDto } from '../../dtos/users/create.dto';
 import { User } from '../../../domain/entities/user.entity';
 import { v4 as uuidV4, validate } from 'uuid';
@@ -7,7 +7,7 @@ import { UpdateDto } from '../../dtos/users/update.dto';
 import { HashText } from '../../../shared/utils/security/security';
 
 export class UserCommand {
-  constructor(private readonly userRepositoryService: UserRepositoryService) {}
+  constructor(private readonly userRepositoryService: UserService) {}
 
   async create(dto: CreateUserDto): Promise<IResponse<User>> {
     const newUser = new User(

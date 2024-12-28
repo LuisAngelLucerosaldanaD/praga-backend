@@ -8,7 +8,7 @@ import {
   Put,
   Res,
 } from '@nestjs/common';
-import { UserRepositoryService } from '../database/services/user.repository.service';
+import { UserService } from '../database/services/user.service';
 import { CreateUserDto } from '../../application/dtos/users/create.dto';
 import { User } from '../../domain/entities/user.entity';
 import { UserCommand } from '../../application/commands/users/user.command';
@@ -20,7 +20,7 @@ import { Response } from 'express';
 export class UsersController {
   private readonly userCommand: UserCommand;
 
-  constructor(private readonly userRepositoryService: UserRepositoryService) {
+  constructor(private readonly userRepositoryService: UserService) {
     this.userCommand = new UserCommand(userRepositoryService);
   }
 

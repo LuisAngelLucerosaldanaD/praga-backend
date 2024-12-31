@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { AuthController } from './http/auth.controller';
@@ -7,8 +7,10 @@ import { DatabaseModule } from '../../shared/infraestructure/persistence/databas
 import { AuthService } from './auth.service';
 
 export const jwtConstants = {
-  privateKey: fs.readFileSync(path.join(__dirname, '../keys/private.key')),
-  publicKey: fs.readFileSync(path.join(__dirname, '../keys/public.key')),
+  privateKey: fs.readFileSync(
+    path.join(__dirname, '../../../keys/private.key'),
+  ),
+  publicKey: fs.readFileSync(path.join(__dirname, '../../../keys/public.key')),
 };
 
 @Module({
@@ -25,6 +27,6 @@ export const jwtConstants = {
     DatabaseModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtService],
 })
 export class AuthModule {}

@@ -1,8 +1,8 @@
 import { RoleService } from '../../infraestructure/role.service';
 import { IResponse } from '../../../shared/domain/IResponse';
-import { Role } from '../../../domain/entities/role.entity';
 import { ICreateRoleDto, IUpdateDto } from '../../infraestructure/dtos/role';
 import { v4 as uuidV4 } from 'uuid';
+import { Role } from '../../domain/role';
 
 export class RoleCommand {
   constructor(private readonly roleService: RoleService) {}

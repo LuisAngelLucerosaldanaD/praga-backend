@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RoleRepository } from '../../domain/repositories/role.repository';
+import { RoleRepository } from '../domain/role.repository';
 import { Pool } from 'pg';
-import { Role } from '../../domain/entities/role.entity';
+import { Role } from '../domain/role';
 
 @Injectable()
 export class RoleService implements RoleRepository {
@@ -12,8 +12,7 @@ export class RoleService implements RoleRepository {
   public async createRole(role: Role): Promise<boolean> {
     this.logger.debug(`Executing query: createRole (${role})`);
     const query = `INSERT INTO auth.roles (id, name, description, user_creator)
-                   VALUES ($1, $2, $3, $4)
-                   RETURNING *`;
+                   VALUES ($1, $2, $3, $4) RETURNING *`;
     try {
       await this.pool.query(query, [
         role.id,
@@ -32,9 +31,7 @@ export class RoleService implements RoleRepository {
 
   public async deleteRole(id: string): Promise<boolean> {
     this.logger.debug(`Executing query: deleteRole (${id})`);
-    const query = `DELETE
-                   FROM auth.roles
-                   WHERE id = $1`;
+    const query = `DELETE FROM auth.roles WHERE id = $1`;
     try {
       const res = await this.pool.query(query, [id]);
       return res.rowCount !== 0;

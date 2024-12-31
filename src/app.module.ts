@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './application/modules/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/infraestructure/guards/auth.guard';
+import { AuthModule } from './auth/infraestructure/auth.module';
+import { UserModule } from './users/infraestructure/user.module';
 
 @Module({
   imports: [
@@ -9,7 +12,14 @@ import { AuthModule } from './application/modules/auth.module';
       envFilePath: ['.env'],
     }),
     AuthModule,
+    UserModule,
   ],
-  providers: [],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}

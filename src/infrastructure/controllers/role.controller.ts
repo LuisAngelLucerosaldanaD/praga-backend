@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Request,
   Res,
 } from '@nestjs/common';
 import { RoleCommand } from '../../application/commands/users/role.command';
@@ -23,7 +24,12 @@ export class RoleController {
   }
 
   @Post()
-  async createRole(@Body() dto: ICreateRoleDto, @Res() res: Response) {
+  async createRole(
+    @Body() dto: ICreateRoleDto,
+    @Res() res: Response,
+    @Request() req: Request,
+  ) {
+    console.log(req['user']);
     const response = await this.roleCommand.create(dto);
     if (response.error) {
       return res.status(HttpStatus.ACCEPTED).json(response);

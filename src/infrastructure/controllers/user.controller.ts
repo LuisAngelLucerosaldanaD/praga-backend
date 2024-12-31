@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  Request,
   Res,
 } from '@nestjs/common';
 import { UserService } from '../database/services/user.service';
@@ -34,12 +33,7 @@ export class UsersController {
 
   @Public()
   @Post()
-  async createUser(
-    @Body() dto: CreateUserDto,
-    @Res() res: Response,
-    @Request() req: Request,
-  ) {
-    console.log(req);
+  async createUser(@Body() dto: CreateUserDto, @Res() res: Response) {
     const response = await this.userCommand.create(dto);
     if (response.error) {
       return res.status(202).json(response);

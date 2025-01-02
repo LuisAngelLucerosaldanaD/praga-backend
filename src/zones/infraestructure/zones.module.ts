@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../shared/infraestructure/persistence/database.module';
 import { SecurityModule } from '../../shared/infraestructure/security/security.module';
-import { LocationService } from './location.service';
+import { ZoneService } from './zone.service';
 
 @Module({
   imports: [DatabaseModule, SecurityModule],
   controllers: [],
-  providers: [LocationService],
+  providers: [ZoneService],
 })
-export class LocationsModule {}
+export class ZonesModule {}

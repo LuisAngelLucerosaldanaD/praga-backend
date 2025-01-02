@@ -51,7 +51,6 @@ export class User extends BaseTable {
     this.status = status;
     this.role = role;
     this.birth_date = birth_date;
-    this.user_creator = 'b7c90251-8f59-4970-ab8e-c1e9a52bdc3f';
   }
 
   public static async validatePassword(

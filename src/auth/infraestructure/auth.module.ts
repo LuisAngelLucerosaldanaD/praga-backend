@@ -1,32 +1,40 @@
 import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { AuthController } from './http/auth.controller';
 import { DatabaseModule } from '../../shared/infraestructure/persistence/database.module';
 import { AuthService } from './auth.service';
-
-export const jwtConstants = {
-  privateKey: fs.readFileSync(
-    path.join(__dirname, '../../../keys/private.key'),
-  ),
-  publicKey: fs.readFileSync(path.join(__dirname, '../../../keys/public.key')),
-};
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 @Module({
   imports: [
-    JwtModule.register({
-      privateKey: jwtConstants.privateKey,
-      publicKey: jwtConstants.publicKey,
-      signOptions: {
-        expiresIn: '1h',
-        algorithm: 'RS256',
-        issuer: 'solum-code.com',
-      },
-    }),
     DatabaseModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const privateKey = fs.readFileSync(
+          path.join(__dirname, configService.get('PRIVATE_KEY')),
+        );
+        const publicKey = fs.readFileSync(
+          path.join(__dirname, configService.get('PUBLIC_KEY')),
+        );
+        const options: JwtModuleOptions = {
+          privateKey: privateKey,
+          publicKey: publicKey,
+          signOptions: {
+            expiresIn: '3h',
+            issuer: 'solum-code.com',
+            algorithm: 'RS256',
+          },
+        };
+        return options;
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtService],
+  providers: [AuthService],
+  exports: [JwtModule],
 })
 export class AuthModule {}

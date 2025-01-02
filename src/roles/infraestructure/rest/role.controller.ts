@@ -29,8 +29,7 @@ export class RoleController {
     @Res() res: Response,
     @Request() req: Request,
   ) {
-    console.log(req['user']);
-    const response = await this.roleCommand.create(dto);
+    const response = await this.roleCommand.create(dto, req['user'].id);
     if (response.error) {
       return res.status(HttpStatus.ACCEPTED).json(response);
     }
@@ -49,8 +48,12 @@ export class RoleController {
   }
 
   @Delete(':id')
-  async deleteRole(@Param('id') id: string, @Res() res: Response) {
-    const response = await this.roleCommand.delete(id);
+  async deleteRole(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Request() req: Request,
+  ) {
+    const response = await this.roleCommand.delete(id, req['user'].id);
     if (response.error || !response.data) {
       return res.status(HttpStatus.ACCEPTED).json(response);
     }

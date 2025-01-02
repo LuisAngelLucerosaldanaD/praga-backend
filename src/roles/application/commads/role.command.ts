@@ -7,9 +7,13 @@ import { Role } from '../../domain/role';
 export class RoleCommand {
   constructor(private readonly roleService: RoleService) {}
 
-  public async create(dto: ICreateRoleDto): Promise<IResponse<Role>> {
+  public async create(
+    dto: ICreateRoleDto,
+    user: string,
+  ): Promise<IResponse<Role>> {
     const newRole = new Role(dto.id || uuidV4(), dto.name, dto.description);
 
+    newRole.user_creator = user;
     try {
       const isCreated = await this.roleService.createRole(newRole);
       if (isCreated) {
@@ -71,9 +75,9 @@ export class RoleCommand {
     }
   }
 
-  public async delete(id: string): Promise<IResponse<boolean>> {
+  public async delete(id: string, user: string): Promise<IResponse<boolean>> {
     try {
-      const isDeleted = await this.roleService.deleteRole(id);
+      const isDeleted = await this.roleService.deleteRole(id, user);
       if (isDeleted) {
         return new IResponse(
           false,

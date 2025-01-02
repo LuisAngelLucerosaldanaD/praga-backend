@@ -9,7 +9,10 @@ import { User } from '../../domain/user';
 export class UserCommand {
   constructor(private readonly userService: UserService) {}
 
-  public async create(dto: CreateUserDto): Promise<IResponse<boolean>> {
+  public async create(
+    dto: CreateUserDto,
+    user: string,
+  ): Promise<IResponse<boolean>> {
     const newUser = new User(
       dto.id || uuidV4(),
       dto.name,
@@ -26,6 +29,8 @@ export class UserCommand {
       dto.role,
       dto.birth_date,
     );
+
+    newUser.user_creator = user;
 
     try {
       const isCreated = await this.userService.createUser(newUser);
@@ -75,7 +80,16 @@ export class UserCommand {
     );
 
     try {
-      await this.userService.updateUser(newUser);
+      const isUpdated = await this.userService.updateUser(newUser);
+      if (!isUpdated) {
+        return new IResponse(
+          true,
+          null,
+          'An error occurred while updating the user',
+          500,
+          'User',
+        );
+      }
       return new IResponse(
         false,
         newUser,
@@ -94,12 +108,12 @@ export class UserCommand {
     }
   }
 
-  public async delete(id: string): Promise<IResponse<boolean>> {
+  public async delete(id: string, user: string): Promise<IResponse<boolean>> {
     try {
       if (!validate(id)) {
         return new IResponse(true, false, 'Invalid user id', 400, 'User');
       }
-      const isCreated = await this.userService.deleteUser(id);
+      const isCreated = await this.userService.deleteUser(id, user);
       if (!isCreated) {
         return new IResponse(
           true,

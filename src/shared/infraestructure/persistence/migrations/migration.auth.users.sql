@@ -27,3 +27,7 @@ create table auth.users
     deleted_at      timestamp,
     user_deleter    uuid
 );
+
+alter table auth.users
+    add constraint fk_auth_users_role
+        foreign key (role) references auth.roles (id);

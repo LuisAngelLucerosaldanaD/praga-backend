@@ -1,20 +1,21 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RoleRepository } from '../domain/role.repository';
-import { Pool } from 'pg';
 import { Role } from '../domain/role';
+import { DatabaseService } from '../../shared/infraestructure/persistence/database.service';
 
 @Injectable()
 export class RoleService implements RoleRepository {
   private readonly logger = new Logger(RoleService.name);
 
-  constructor(@Inject('DATABASE_POOL') private pool: Pool) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   public async createRole(role: Role): Promise<boolean> {
     this.logger.debug(`Executing query: createRole (${role})`);
     const query = `INSERT INTO auth.roles (id, name, description, user_creator)
-                   VALUES ($1, $2, $3, $4) RETURNING *`;
+                   VALUES ($1, $2, $3, $4)
+                   RETURNING *`;
     try {
-      await this.pool.query(query, [
+      await this.dbService.execute(query, [
         role.id,
         role.name,
         role.description,
@@ -29,11 +30,15 @@ export class RoleService implements RoleRepository {
     }
   }
 
-  public async deleteRole(id: string): Promise<boolean> {
+  public async deleteRole(id: string, user: string): Promise<boolean> {
     this.logger.debug(`Executing query: deleteRole (${id})`);
-    const query = `DELETE FROM auth.roles WHERE id = $1`;
+    const query = `UPDATE auth.roles
+                   set is_delete    = true,
+                       deleted_at   = now(),
+                       user_deleter = $2
+                   where id = $1`;
     try {
-      const res = await this.pool.query(query, [id]);
+      const res = await this.dbService.execute(query, [id, user]);
       return res.rowCount !== 0;
     } catch (error) {
       this.logger.error(
@@ -58,7 +63,7 @@ export class RoleService implements RoleRepository {
                    WHERE id = $1`;
 
     try {
-      const res = await this.pool.query(query, [id]);
+      const res = await this.dbService.execute(query, [id]);
       this.logger.debug(
         `Executed query getRoleById, result size ${res.rows.length}`,
       );
@@ -84,7 +89,7 @@ export class RoleService implements RoleRepository {
                           user_deleter
                    from auth.roles`;
     try {
-      const res = await this.pool.query(query);
+      const res = await this.dbService.execute(query);
       this.logger.debug(
         `Executed query getRoles, result size ${res.rows.length}`,
       );
@@ -103,7 +108,7 @@ export class RoleService implements RoleRepository {
                        updated_at  = now()
                    WHERE id = $3`;
     try {
-      const res = await this.pool.query(query, [
+      const res = await this.dbService.execute(query, [
         role.name,
         role.description,
         role.id,

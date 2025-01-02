@@ -5,7 +5,7 @@ export interface RoleRepository {
 
   updateRole(role: Role): Promise<boolean>;
 
-  deleteRole(id: string): Promise<boolean>;
+  deleteRole(id: string, user: string): Promise<boolean>;
 
   getRoleById(id: string): Promise<Role | null>;
 

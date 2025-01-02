@@ -15,12 +15,16 @@ export class AuthService {
 
   public async login(cred: ICredentials): Promise<ISession | null> {
     this.logger.debug(`Executing query: getUserByUsername (${cred.username})`);
-    const query = `SELECT password, status, is_block, is_delete  FROM auth.users WHERE username = $1`;
+    const query = `SELECT id, role, password, status, is_block, is_delete
+                   FROM auth.users
+                   WHERE username = $1`;
     try {
       const result = await this.dbService.execute(query, [cred.username]);
       this.logger.debug(`Executed query, result size ${result.rows.length}`);
       if (!result.rows.length) return null;
       const user = result.rows[0];
+      if (user.is_delete) return null;
+      if (user.is_block) return null; // TODO: Implement block user message
       const isEquals = await User.validatePassword(
         cred.password,
         user.password,
@@ -34,7 +38,7 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(
-        `Error executing query getUserByUsername (${cred.username}), error: ${error}`,
+        `Error executing login (${cred.username}), error: ${error}`,
       );
       return null;
     }

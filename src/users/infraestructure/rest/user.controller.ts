@@ -6,10 +6,10 @@ import {
   Param,
   Post,
   Put,
+  Request,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Public } from '../../../shared/infraestructure/decorators/public.decorator';
 import { UserCommand } from '../../application/commands/user.command';
 import { UserService } from '../user.service';
 import { CreateUserDto } from '../dto/create.dto';
@@ -25,10 +25,13 @@ export class UsersController {
     this.userCommand = new UserCommand(userService);
   }
 
-  @Public()
   @Post()
-  async createUser(@Body() dto: CreateUserDto, @Res() res: Response) {
-    const response = await this.userCommand.create(dto);
+  async createUser(
+    @Body() dto: CreateUserDto,
+    @Res() res: Response,
+    @Request() req: Request,
+  ) {
+    const response = await this.userCommand.create(dto, req['user'].id);
     if (response.error) {
       return res.status(202).json(response);
     }
@@ -47,8 +50,12 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id: string, @Res() res: Response) {
-    const response = await this.userCommand.delete(id);
+  async deleteUser(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Request() req: Request,
+  ) {
+    const response = await this.userCommand.delete(id, req['user'].id);
     if (response.error || !response.data) {
       return res.status(202).json(response);
     }

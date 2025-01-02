@@ -21,7 +21,7 @@ export class AuthController {
     };
     const session = await this.authService.login(dto);
     if (!session) {
-      return res.status(HttpStatus.UNAUTHORIZED).json();
+      return res.status(HttpStatus.UNAUTHORIZED).json(response);
     }
 
     response.code = 200;

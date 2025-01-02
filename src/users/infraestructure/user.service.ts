@@ -13,7 +13,8 @@ export class UserService implements UserRepository {
     this.logger.debug(`Executing query: createUser (${user})`);
     const query = `INSERT INTO auth.users (id, name, lastname, document, type_document, username, password, email,
                                            cellphone, code, points, status, role, birth_date, user_creator)
-                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`;
+                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                   RETURNING *`;
     try {
       await this.dbService.execute(query, [
         user.id,
@@ -41,7 +42,7 @@ export class UserService implements UserRepository {
     }
   }
 
-  public async updateUser(user: User): Promise<User | null> {
+  public async updateUser(user: User): Promise<boolean> {
     this.logger.debug(`Executing query: updateUser (${user})`);
     const query = `UPDATE auth.users
                    SET name=$2,
@@ -49,14 +50,13 @@ export class UserService implements UserRepository {
                        document=$4,
                        type_document=$5,
                        username=$6,
-                       password=$7,
-                       email=$8,
-                       cellphone=$9,
-                       code=$10,
-                       points=$11,
-                       status=$12,
-                       role=$13,
-                       birth_date=$14,
+                       email=$7,
+                       cellphone=$8,
+                       code=$9,
+                       points=$10,
+                       status=$11,
+                       role=$12,
+                       birth_date=$13,
                        updated_at=now()
                    WHERE id = $1
                    RETURNING *`;
@@ -68,7 +68,6 @@ export class UserService implements UserRepository {
         user.document,
         user.type_document,
         user.username,
-        user.password,
         user.email,
         user.cellphone,
         user.code,
@@ -78,7 +77,7 @@ export class UserService implements UserRepository {
         user.birth_date,
       ]);
       this.logger.debug(`Executed query, result size ${result.rows.length}`);
-      return result.rows[0] as User;
+      return result.rowCount !== 0;
     } catch (error) {
       this.logger.error(
         `Error executing query updateUser (${user}), error: ${error}`,
@@ -87,12 +86,15 @@ export class UserService implements UserRepository {
     }
   }
 
-  public async deleteUser(id: string): Promise<boolean> {
+  public async deleteUser(id: string, user: string): Promise<boolean> {
     this.logger.debug(`Executing query: deleteUser (${id})`);
-    const query = `DELETE  FROM auth.users
+    const query = `UPDATE auth.users
+                   set is_delete    = true,
+                       deleted_at   = now(),
+                       user_deleter = $2
                    WHERE id = $1`;
     try {
-      const res = await this.dbService.execute(query, [id]);
+      const res = await this.dbService.execute(query, [id, user]);
       this.logger.debug(`Executed query delete user`);
       return res.rowCount !== 0;
     } catch (error) {
@@ -111,7 +113,6 @@ export class UserService implements UserRepository {
                           document,
                           type_document,
                           username,
-                          password,
                           email,
                           cellphone,
                           code,
@@ -150,7 +151,6 @@ export class UserService implements UserRepository {
                           document,
                           type_document,
                           username,
-                          password,
                           email,
                           cellphone,
                           code,
@@ -189,7 +189,6 @@ export class UserService implements UserRepository {
                           document,
                           type_document,
                           username,
-                          password,
                           email,
                           cellphone,
                           code,

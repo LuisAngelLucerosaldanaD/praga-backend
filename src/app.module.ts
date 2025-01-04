@@ -5,6 +5,9 @@ import { UserModule } from './users/infraestructure/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/infraestructure/guards/auth.guard';
 import { RoleModule } from './roles/infraestructure/role.module';
+import { LocationsModule } from './locations/infraestructure/locations.module';
+import { ZonesModule } from './zones/infraestructure/zones.module';
+import { SecurityModule } from './shared/infraestructure/security/security.module';
 
 @Module({
   imports: [
@@ -12,9 +15,12 @@ import { RoleModule } from './roles/infraestructure/role.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    SecurityModule,
     AuthModule,
     UserModule,
     RoleModule,
+    LocationsModule,
+    ZonesModule,
   ],
   providers: [
     {

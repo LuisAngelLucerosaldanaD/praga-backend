@@ -1,11 +1,11 @@
-import { Zone } from './zone.entity';
+import { Zone } from './zone';
 
 export interface ZoneRepository {
   createZone(Zone: Zone): Promise<boolean>;
 
   updateZone(Zone: Zone): Promise<boolean>;
 
-  deleteZone(id: string): Promise<boolean>;
+  deleteZone(id: string, user: string): Promise<boolean>;
 
   getZoneById(id: string): Promise<Zone | null>;
 

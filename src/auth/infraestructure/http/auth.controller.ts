@@ -5,7 +5,7 @@ import { ICredentials } from '../dtos/auth';
 import { Response } from 'express';
 import { IResponse } from '../../../shared/domain/IResponse';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

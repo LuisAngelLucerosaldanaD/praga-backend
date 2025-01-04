@@ -15,7 +15,7 @@ import { RoleService } from '../role.service';
 import { ICreateRoleDto, IUpdateDto } from '../dtos/role';
 import { Response } from 'express';
 
-@Controller('roles')
+@Controller('api/v1/roles')
 export class RoleController {
   private readonly roleCommand: RoleCommand;
 

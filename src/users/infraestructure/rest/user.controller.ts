@@ -17,7 +17,7 @@ import { UpdateDto } from '../dto/update.dto';
 import { IResponse } from '../../../shared/domain/IResponse';
 import { User } from '../../domain/user';
 
-@Controller('users')
+@Controller('api/v1/users')
 export class UsersController {
   private readonly userCommand: UserCommand;
 

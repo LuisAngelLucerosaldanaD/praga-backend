@@ -10,7 +10,7 @@ export class RoleService implements RoleRepository {
   constructor(private readonly dbService: DatabaseService) {}
 
   public async createRole(role: Role): Promise<boolean> {
-    this.logger.debug(`Executing query: createRole (${role})`);
+    this.logger.debug(`Executing query: createRole (${JSON.stringify(role)})`);
     const query = `INSERT INTO auth.roles (id, name, description, user_creator)
                    VALUES ($1, $2, $3, $4)
                    RETURNING *`;
@@ -24,7 +24,7 @@ export class RoleService implements RoleRepository {
       return true;
     } catch (error) {
       this.logger.error(
-        `Error executing query createRole (${role}), error: ${error}`,
+        `Error executing query createRole (${JSON.stringify(role)}), error: ${error}`,
       );
       return false;
     }
@@ -101,7 +101,7 @@ export class RoleService implements RoleRepository {
   }
 
   public async updateRole(role: Role): Promise<boolean> {
-    this.logger.debug(`Executing query: updateRole (${role})`);
+    this.logger.debug(`Executing query: updateRole (${JSON.stringify(role)})`);
     const query = `UPDATE auth.roles
                    SET name        = $1,
                        description = $2,
@@ -116,7 +116,7 @@ export class RoleService implements RoleRepository {
       return res.rowCount !== 0;
     } catch (error) {
       this.logger.error(
-        `Error executing query updateRole (${role}), error: ${error}`,
+        `Error executing query updateRole (${JSON.stringify(role)}), error: ${error}`,
       );
       return false;
     }

@@ -12,3 +12,11 @@ create table config.zones
     user_creator uuid                    not null,
     user_deleter uuid
 );
+
+alter table config.zones
+    add constraint fk_location_id
+        foreign key (location_id) references config.locations (id),
+    add constraint fk_user_creator
+        foreign key (user_creator) references auth.users (id),
+    add constraint fk_user_deleter
+        foreign key (user_deleter) references auth.users (id);

@@ -8,6 +8,7 @@ import { RoleModule } from './roles/infraestructure/role.module';
 import { LocationsModule } from './locations/infraestructure/locations.module';
 import { ZonesModule } from './zones/infraestructure/zones.module';
 import { SecurityModule } from './shared/infraestructure/security/security.module';
+import { EventsModule } from './events/infraestructure/events.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SecurityModule } from './shared/infraestructure/security/security.modul
     RoleModule,
     LocationsModule,
     ZonesModule,
+    EventsModule,
   ],
   providers: [
     {

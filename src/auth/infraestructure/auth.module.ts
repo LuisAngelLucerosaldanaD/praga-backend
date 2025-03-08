@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './http/auth.controller';
+import { AuthController } from './auth.controller';
 import { DatabaseModule } from '../../shared/infraestructure/persistence/database.module';
 import { AuthService } from './auth.service';
 import { SecurityModule } from '../../shared/infraestructure/security/security.module';

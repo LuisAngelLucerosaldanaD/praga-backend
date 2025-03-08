@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EventRepository } from '../domain/event.repository';
+import { EventsRepository } from '../domain/events.repository';
 import { Event } from '../domain/event';
 import { DatabaseService } from '../../shared/infraestructure/persistence/database.service';
 
 @Injectable()
-export class EventsService implements EventRepository {
+export class EventsService implements EventsRepository {
   private readonly logger = new Logger(EventsService.name);
 
   constructor(private readonly dbService: DatabaseService) {}

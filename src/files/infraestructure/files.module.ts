@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
 import { DatabaseModule } from '../../shared/infraestructure/persistence/database.module';
-import { AuthService } from './auth.service';
 import { SecurityModule } from '../../shared/infraestructure/security/security.module';
-import { AuthRepository } from '../domain/auth.repository';
+import { FilesRepository } from '../domain/files.repository';
+import { FilesService } from './files.service';
+import { FilesController } from './files.controller';
 import { ApplicationService } from '../application/application.service';
 
 @Module({
   imports: [DatabaseModule, SecurityModule],
   providers: [
-    { provide: AuthRepository, useClass: AuthService },
+    { provide: FilesRepository, useClass: FilesService },
     ApplicationService,
   ],
-  controllers: [AuthController],
+  controllers: [FilesController],
+  exports: [FilesRepository],
 })
-export class AuthModule {}
+export class FilesModule {}

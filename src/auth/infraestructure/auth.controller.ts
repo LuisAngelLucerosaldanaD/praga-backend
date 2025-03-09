@@ -1,34 +1,49 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { Public } from '../../shared/infraestructure/decorators/public.decorator';
-import { ICredentials } from './dtos/auth';
+import { AccountDTO, CredentialsDTO } from './dtos/auth';
 import { Response } from 'express';
+import { ApplicationService } from '../application/application.service';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IResponse } from '../../shared/domain/IResponse';
+import { Session } from '../domain/session';
 
+@ApiBearerAuth()
+@ApiTags('Auth')
 @Controller('api/v1/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly _appService: ApplicationService) {}
 
   @Public()
   @Post('login')
-  async login(@Body() dto: ICredentials, @Res() res: Response) {
-    const response: IResponse = {
-      data: null,
-      code: 401,
-      error: true,
-      message: 'User or password incorrect',
-      type: 'Auth',
-    };
-    const session = await this.authService.login(dto);
-    if (!session) {
-      return res.status(HttpStatus.UNAUTHORIZED).json(response);
-    }
+  @ApiOperation({ summary: 'Login User' })
+  @ApiBody({ type: CredentialsDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Login User',
+    type: IResponse<Session>,
+  })
+  async login(@Body() dto: CredentialsDTO, @Res() res: Response) {
+    const response = await this._appService.login(dto);
+    return res.status(response.code).json(response);
+  }
 
-    response.code = 200;
-    response.error = false;
-    response.message = 'Login successfully';
-    response.data = session;
-
-    return res.status(HttpStatus.OK).json(response);
+  @Public()
+  @Post('register')
+  @ApiOperation({ summary: 'Register User' })
+  @ApiBody({ type: AccountDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Register User',
+    type: IResponse,
+  })
+  async register(@Body() dto: AccountDTO, @Res() res: Response) {
+    const response = await this._appService.register(dto);
+    return res.status(response.code).json(response);
   }
 }

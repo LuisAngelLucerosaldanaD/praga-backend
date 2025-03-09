@@ -10,9 +10,9 @@ import {
   Request,
   Res,
 } from '@nestjs/common';
-import { RoleCommand } from '../../application/commads/role.command';
-import { RoleService } from '../role.service';
-import { ICreateRoleDto, IUpdateDto } from '../dtos/role';
+import { RoleCommand } from '../application/commads/role.command';
+import { RoleService } from './role.service';
+import { ICreateRoleDto, IUpdateDto } from './dtos/role';
 import { Response } from 'express';
 
 @Controller('api/v1/roles')

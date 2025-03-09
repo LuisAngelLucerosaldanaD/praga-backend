@@ -1,35 +1,22 @@
-export interface ICreateEvent {
-  id?: string;
-  name: string;
-  slogan: string;
-  capacity: number;
-  start_date: string;
-  end_date: string;
-  publication_date: string;
-  pre_sale_date: string;
-  free_list_date: string;
-}
-
-export interface IUpdateEvent {
-  id: string;
-  name: string;
-  slogan: string;
-  capacity: number;
-  start_date: string;
-  end_date: string;
-  publication_date: string;
-  pre_sale_date: string;
-  free_list_date: string;
-}
+import { ApiProperty } from '@nestjs/swagger';
 
 export class EventDTO {
+  @ApiProperty({ required: false })
   id?: string;
+  @ApiProperty()
   name: string;
+  @ApiProperty()
   slogan: string;
+  @ApiProperty()
   capacity: number;
+  @ApiProperty()
   start_date: string;
+  @ApiProperty()
   end_date: string;
+  @ApiProperty()
   publication_date: string;
+  @ApiProperty()
   pre_sale_date: string;
+  @ApiProperty()
   free_list_date: string;
 }

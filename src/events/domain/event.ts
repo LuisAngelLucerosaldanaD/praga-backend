@@ -1,5 +1,5 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { EventDTO, ICreateEvent } from '../infraestructure/dtos/dtos';
+import { EventDTO } from '../infraestructure/dtos/dtos';
 import { validate, v4 } from 'uuid';
 
 export class Event extends BaseTable {
@@ -46,20 +46,6 @@ export class Event extends BaseTable {
     this.is_deleted = is_delete;
     this.user_creator = user_creator;
     this.user_deleter = user_deleter;
-  }
-
-  public static dtoToEvent(dto: ICreateEvent): Event {
-    return new Event(
-      dto.id,
-      dto.name,
-      dto.slogan,
-      dto.capacity,
-      new Date(dto.start_date),
-      new Date(dto.end_date),
-      new Date(dto.publication_date),
-      new Date(dto.pre_sale_date),
-      new Date(dto.free_list_date),
-    );
   }
 
   public static parseDTO(dto: EventDTO): Event {

@@ -1,18 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class TicketDTO {
+export class FileDTO {
   @ApiProperty({ required: false })
   id?: string;
   @ApiProperty()
-  user_id: string;
+  name: string;
   @ApiProperty()
-  place_id: string;
+  path: string;
   @ApiProperty()
-  transaction_id: string;
+  format: string;
   @ApiProperty()
-  amount: number;
+  hash: string;
   @ApiProperty()
-  status: number;
-  @ApiProperty()
-  promoter_code: string;
+  size: number;
 }

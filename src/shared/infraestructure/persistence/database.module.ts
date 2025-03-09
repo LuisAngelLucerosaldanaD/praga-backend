@@ -11,6 +11,9 @@ const databasePoolFactory = async (configService: ConfigService) => {
     database: configService.get('POSTGRES_DB'),
     password: configService.get('POSTGRES_PASSWORD'),
     port: configService.get('POSTGRES_LOCAL_PORT'),
+    ssl: {
+      rejectUnauthorized: false,
+    },
   });
 };
 

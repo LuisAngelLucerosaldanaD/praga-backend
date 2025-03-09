@@ -1,27 +1,25 @@
-import { RoleService } from '../../infraestructure/role.service';
-import { IResponse } from '../../../shared/domain/IResponse';
-import { ICreateRoleDto, IUpdateDto } from '../../infraestructure/dtos/role';
-import { v4 as uuidV4 } from 'uuid';
-import { Role } from '../../domain/role';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { RolesRepository } from '../domain/roles.repository';
+import { RoleDTO } from '../infraestructure/dtos/role';
+import { IResponse } from '../../shared/domain/IResponse';
+import { Role } from '../domain/role';
 
-export class RoleCommand {
-  constructor(private readonly roleService: RoleService) {}
+@Injectable()
+export class ApplicationService {
+  constructor(private readonly _repository: RolesRepository) {}
 
-  public async create(
-    dto: ICreateRoleDto,
-    user: string,
-  ): Promise<IResponse<Role>> {
-    const newRole = new Role(dto.id || uuidV4(), dto.name, dto.description);
-
+  public async create(dto: RoleDTO, user: string): Promise<IResponse<Role>> {
+    const newRole = Role.parseDTO(dto);
     newRole.user_creator = user;
+
     try {
-      const isCreated = await this.roleService.createRole(newRole);
+      const isCreated = await this._repository.createRole(newRole);
       if (isCreated) {
         return new IResponse(
           false,
           newRole,
           'Role created successfully',
-          201,
+          HttpStatus.CREATED,
           'Role',
         );
       }
@@ -29,7 +27,7 @@ export class RoleCommand {
         true,
         null,
         'An error occurred while creating the role',
-        500,
+        HttpStatus.ACCEPTED,
         'Role',
       );
     } catch (error) {
@@ -37,23 +35,23 @@ export class RoleCommand {
         true,
         null,
         'An error occurred while creating the role, err: ' + error,
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
         'Role',
       );
     }
   }
 
-  public async update(dto: IUpdateDto): Promise<IResponse<Role>> {
-    const newRole = new Role(dto.id, dto.name, dto.description);
+  public async update(dto: RoleDTO): Promise<IResponse<Role>> {
+    const newRole = Role.parseDTO(dto);
 
     try {
-      const isUpdated = await this.roleService.updateRole(newRole);
+      const isUpdated = await this._repository.updateRole(newRole);
       if (isUpdated) {
         return new IResponse(
           false,
           newRole,
           'Role updated successfully',
-          200,
+          HttpStatus.OK,
           'Role',
         );
       }
@@ -61,7 +59,7 @@ export class RoleCommand {
         true,
         null,
         'An error occurred while updating the role',
-        500,
+        HttpStatus.ACCEPTED,
         'Role',
       );
     } catch (error) {
@@ -69,7 +67,7 @@ export class RoleCommand {
         true,
         null,
         'An error occurred while updating the role, err: ' + error,
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
         'Role',
       );
     }
@@ -77,13 +75,13 @@ export class RoleCommand {
 
   public async delete(id: string, user: string): Promise<IResponse<boolean>> {
     try {
-      const isDeleted = await this.roleService.deleteRole(id, user);
+      const isDeleted = await this._repository.deleteRole(id, user);
       if (isDeleted) {
         return new IResponse(
           false,
           true,
           'Role deleted successfully',
-          200,
+          HttpStatus.OK,
           'Role',
         );
       }
@@ -91,7 +89,7 @@ export class RoleCommand {
         true,
         false,
         'An error occurred while deleting the role',
-        500,
+        HttpStatus.ACCEPTED,
         'Role',
       );
     } catch (error) {
@@ -99,7 +97,7 @@ export class RoleCommand {
         true,
         false,
         'An error occurred while deleting the role, err: ' + error,
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
         'Role',
       );
     }
@@ -107,17 +105,23 @@ export class RoleCommand {
 
   public async getRoleById(id: string): Promise<IResponse<Role>> {
     try {
-      const role = await this.roleService.getRoleById(id);
+      const role = await this._repository.getRoleById(id);
       if (!role) {
-        return new IResponse(true, null, 'Role not found', 404, 'Role');
+        return new IResponse(
+          true,
+          null,
+          'Role not found',
+          HttpStatus.NOT_FOUND,
+          'Role',
+        );
       }
-      return new IResponse(false, role, 'Role found', 200, 'Role');
+      return new IResponse(false, role, 'Role found', HttpStatus.OK, 'Role');
     } catch (error) {
       return new IResponse(
         true,
         null,
         'An error occurred while getting the role, err: ' + error,
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
         'Role',
       );
     }
@@ -125,17 +129,14 @@ export class RoleCommand {
 
   public async getRoles(): Promise<IResponse<Role[]>> {
     try {
-      const roles = await this.roleService.getRoles();
-      if (!roles) {
-        return new IResponse(true, [], 'Roles not found', 404, 'Role');
-      }
-      return new IResponse(false, roles, 'Roles found', 200, 'Role');
+      const roles = await this._repository.getRoles();
+      return new IResponse(false, roles, 'Roles found', HttpStatus.OK, 'Role');
     } catch (error) {
       return new IResponse(
         true,
         [],
         'An error occurred while getting the roles, err: ' + error,
-        500,
+        HttpStatus.INTERNAL_SERVER_ERROR,
         'Role',
       );
     }

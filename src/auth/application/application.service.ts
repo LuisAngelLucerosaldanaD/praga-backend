@@ -14,7 +14,10 @@ export class ApplicationService {
     private readonly jwtService: JwtService,
   ) {}
 
-  public async login(cred: CredentialsDTO): Promise<IResponse<Session>> {
+  public async login(
+    cred: CredentialsDTO,
+    ip: string,
+  ): Promise<IResponse<Session>> {
     const account = await this._repository.login(cred);
     if (!account) {
       return {
@@ -59,7 +62,7 @@ export class ApplicationService {
         type: 'Auth',
       };
     }
-    const payload = { id: account.id, role: account.role };
+    const payload = { id: account.id, role: account.role, ip: ip };
     const token = await this.jwtService.signAsync(payload);
     return new IResponse(
       false,

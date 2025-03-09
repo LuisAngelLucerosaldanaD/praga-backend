@@ -10,74 +10,96 @@ import {
   Request,
   Res,
 } from '@nestjs/common';
-import { RoleCommand } from '../application/commads/role.command';
-import { RoleService } from './role.service';
-import { ICreateRoleDto, IUpdateDto } from './dtos/role';
+import { RoleDTO } from './dtos/role';
 import { Response } from 'express';
+import { ApplicationService } from '../application/application.service';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { IResponse } from '../../shared/domain/IResponse';
+import { Role } from '../domain/role';
 
+@ApiBearerAuth()
+@ApiTags('Roles')
 @Controller('api/v1/roles')
 export class RoleController {
-  private readonly roleCommand: RoleCommand;
-
-  constructor(private readonly roleService: RoleService) {
-    this.roleCommand = new RoleCommand(roleService);
-  }
+  constructor(private readonly _appService: ApplicationService) {}
 
   @Post()
-  async createRole(
-    @Body() dto: ICreateRoleDto,
+  @ApiOperation({ summary: 'Create Role' })
+  @ApiBody({ type: RoleDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Create Role',
+    type: IResponse,
+  })
+  public async createRole(
+    @Body() dto: RoleDTO,
     @Res() res: Response,
     @Request() req: Request,
   ) {
-    const response = await this.roleCommand.create(dto, req['user'].id);
-    if (response.error) {
-      return res.status(HttpStatus.ACCEPTED).json(response);
-    }
-
-    return res.status(HttpStatus.CREATED).json(response);
+    const user = req['user'].id;
+    const response = await this._appService.create(dto, user);
+    return res.status(response.code).json(response);
   }
 
   @Put()
-  async updateRole(@Body() dto: IUpdateDto, @Res() res: Response) {
-    const response = await this.roleCommand.update(dto);
-    if (response.error) {
-      return res.status(HttpStatus.ACCEPTED).json(response);
-    }
-
-    return res.status(HttpStatus.OK).json(response);
+  @ApiOperation({ summary: 'Update Role' })
+  @ApiBody({ type: RoleDTO })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Update Role',
+    type: IResponse,
+  })
+  public async updateRole(@Body() dto: RoleDTO, @Res() res: Response) {
+    const response = await this._appService.update(dto);
+    return res.status(response.code).json(response);
   }
 
   @Delete(':id')
-  async deleteRole(
+  @ApiOperation({ summary: 'Delete Role' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Delete Role',
+    type: IResponse,
+  })
+  public async deleteRole(
     @Param('id') id: string,
     @Res() res: Response,
     @Request() req: Request,
   ) {
-    const response = await this.roleCommand.delete(id, req['user'].id);
-    if (response.error || !response.data) {
-      return res.status(HttpStatus.ACCEPTED).json(response);
-    }
-
-    return res.status(HttpStatus.OK).json(response);
+    const response = await this._appService.delete(id, req['user'].id);
+    return res.status(response.code).json(response);
   }
 
   @Get(':id')
-  async getRole(@Param('id') id: string, @Res() res: Response) {
-    const response = await this.roleCommand.getRoleById(id);
-    if (response.error) {
-      return res.status(HttpStatus.ACCEPTED).json(response);
-    }
-
-    return res.status(HttpStatus.OK).json(response);
+  @ApiOperation({ summary: 'Get Role by id' })
+  @ApiParam({ name: 'id', required: true })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get Role by id',
+    type: IResponse<Role>,
+  })
+  public async getRole(@Param('id') id: string, @Res() res: Response) {
+    const response = await this._appService.getRoleById(id);
+    return res.status(response.code).json(response);
   }
 
   @Get()
-  async getRoles(@Res() res: Response) {
-    const response = await this.roleCommand.getRoles();
-    if (response.error) {
-      return res.status(HttpStatus.ACCEPTED).json(response);
-    }
-
-    return res.status(HttpStatus.OK).json(response);
+  @ApiOperation({ summary: 'Get Roles' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get Roles',
+    type: IResponse<Role[]>,
+  })
+  public async getRoles(@Res() res: Response) {
+    const response = await this._appService.getRoles();
+    return res.status(response.code).json(response);
   }
 }

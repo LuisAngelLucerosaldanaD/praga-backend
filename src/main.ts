@@ -6,11 +6,12 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-    .setTitle('Praga Backend')
-    .setDescription('The Praga API description')
+    .setTitle('Eventum Flow Backend')
+    .setDescription('The Eventum Flow API')
     .setVersion('1.0')
     .addTag('Auth')
     .addTag('Users')
+    .addTag('Roles')
     .addTag('Events')
     .addTag('Places')
     .addTag('Tickets')

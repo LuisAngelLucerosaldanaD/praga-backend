@@ -1,5 +1,6 @@
 import { BaseTable } from '../../shared/domain/base-table';
 import { FileDTO } from '../infraestructure/dtos/dtos';
+import { v4 } from 'uuid';
 
 export class File extends BaseTable {
   id: string;
@@ -39,7 +40,14 @@ export class File extends BaseTable {
   }
 
   public static parseDTO(dto: FileDTO): File {
-    return new File(dto.id, dto.name, dto.path, dto.format, dto.hash, dto.size);
+    return new File(
+      dto.id || v4(),
+      dto.name,
+      dto.path,
+      dto.format,
+      dto.hash,
+      dto.size,
+    );
   }
 
   public static parseQuery(query: any): File {

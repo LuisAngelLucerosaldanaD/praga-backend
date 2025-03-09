@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RoleRepository } from '../domain/role.repository';
+import { RolesRepository } from '../domain/roles.repository';
 import { Role } from '../domain/role';
 import { DatabaseService } from '../../shared/infraestructure/persistence/database.service';
 
 @Injectable()
-export class RoleService implements RoleRepository {
+export class RoleService implements RolesRepository {
   private readonly logger = new Logger(RoleService.name);
 
   constructor(private readonly dbService: DatabaseService) {}
@@ -25,6 +25,28 @@ export class RoleService implements RoleRepository {
     } catch (error) {
       this.logger.error(
         `Error executing query createRole (${JSON.stringify(role)}), error: ${error}`,
+      );
+      return false;
+    }
+  }
+
+  public async updateRole(role: Role): Promise<boolean> {
+    this.logger.debug(`Executing query: updateRole (${JSON.stringify(role)})`);
+    const query = `UPDATE auth.roles
+                   SET name        = $1,
+                       description = $2,
+                       updated_at  = now()
+                   WHERE id = $3`;
+    try {
+      const res = await this.dbService.execute(query, [
+        role.name,
+        role.description,
+        role.id,
+      ]);
+      return res.rowCount !== 0;
+    } catch (error) {
+      this.logger.error(
+        `Error executing query updateRole (${JSON.stringify(role)}), error: ${error}`,
       );
       return false;
     }
@@ -67,7 +89,8 @@ export class RoleService implements RoleRepository {
       this.logger.debug(
         `Executed query getRoleById, result size ${res.rows.length}`,
       );
-      return res.rows[0];
+      if (res.rowCount === 0) return null;
+      return Role.parseQuery(res.rows[0]);
     } catch (error) {
       this.logger.error(
         `Error executing query getRoleById (${id}), error: ${error}`,
@@ -93,32 +116,10 @@ export class RoleService implements RoleRepository {
       this.logger.debug(
         `Executed query getRoles, result size ${res.rows.length}`,
       );
-      return res.rows;
+      return res.rows.map((item) => Role.parseQuery(item));
     } catch (error) {
       this.logger.error(`Error executing query getRoles, error: ${error}`);
       return [];
-    }
-  }
-
-  public async updateRole(role: Role): Promise<boolean> {
-    this.logger.debug(`Executing query: updateRole (${JSON.stringify(role)})`);
-    const query = `UPDATE auth.roles
-                   SET name        = $1,
-                       description = $2,
-                       updated_at  = now()
-                   WHERE id = $3`;
-    try {
-      const res = await this.dbService.execute(query, [
-        role.name,
-        role.description,
-        role.id,
-      ]);
-      return res.rowCount !== 0;
-    } catch (error) {
-      this.logger.error(
-        `Error executing query updateRole (${JSON.stringify(role)}), error: ${error}`,
-      );
-      return false;
     }
   }
 }

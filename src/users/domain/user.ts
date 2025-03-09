@@ -1,6 +1,7 @@
 import { BaseTable } from '../../shared/domain/base-table';
 import { CompareHash } from '../../shared/infraestructure/security/security';
 import { UserDto } from '../infraestructure/dto/dtos';
+import { v4 } from 'uuid';
 
 export class User extends BaseTable {
   id: string;
@@ -113,7 +114,7 @@ export class User extends BaseTable {
 
   public static parseDTO(dto: UserDto): User {
     return new User(
-      dto.id,
+      dto.id || v4(),
       dto.name,
       dto.lastname,
       dto.document,

@@ -1,5 +1,6 @@
 import { BaseTable } from '../../shared/domain/base-table';
 import { TicketDTO } from '../infraestructure/dtos/dtos';
+import { v4 } from 'uuid';
 
 export class Ticket extends BaseTable {
   id: string;
@@ -43,7 +44,7 @@ export class Ticket extends BaseTable {
 
   public static parseDTO(dto: TicketDTO): Ticket {
     return new Ticket(
-      dto.id,
+      dto.id || v4(),
       dto.user_id,
       dto.place_id,
       dto.transaction_id,
@@ -58,7 +59,7 @@ export class Ticket extends BaseTable {
       query.id,
       query.user_id,
       query.place_id,
-      query.transaction_id,
+      query.transaction,
       query.amount,
       query.status,
       query.promoter_code,

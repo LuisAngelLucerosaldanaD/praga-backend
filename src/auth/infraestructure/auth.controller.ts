@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Ip, Post, Res } from '@nestjs/common';
 import { Public } from '../../shared/infraestructure/decorators/public.decorator';
 import { AccountDTO, CredentialsDTO } from './dtos/auth';
 import { Response } from 'express';
@@ -28,8 +28,12 @@ export class AuthController {
     description: 'Login User',
     type: IResponse<Session>,
   })
-  async login(@Body() dto: CredentialsDTO, @Res() res: Response) {
-    const response = await this._appService.login(dto);
+  async login(
+    @Body() dto: CredentialsDTO,
+    @Res() res: Response,
+    @Ip() ip: string,
+  ) {
+    const response = await this._appService.login(dto, ip);
     return res.status(response.code).json(response);
   }
 

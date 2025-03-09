@@ -1,5 +1,6 @@
 import { BaseTable } from '../../shared/domain/base-table';
 import { PlaceDTO } from '../infraestructure/dtos/dtos';
+import { v4 } from 'uuid';
 
 export class Place extends BaseTable {
   id: string;
@@ -65,7 +66,7 @@ export class Place extends BaseTable {
 
   public static parseDTO(dto: PlaceDTO): Place {
     return new Place(
-      dto.id,
+      dto.id || v4(),
       dto.name,
       dto.description,
       dto.event_id,

@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class IResponse<T = any> {
-  @ApiProperty({ example: false, type: 'boolean' })
+  @ApiProperty()
   public error: boolean;
-  @ApiProperty({ example: 'The data is dynamic' })
+  @ApiProperty()
   public data: T;
-  @ApiProperty({ example: 'Process successfully' })
+  @ApiProperty()
   public message: string;
-  @ApiProperty({ example: 200, type: 'number' })
+  @ApiProperty()
   public code: number;
-  @ApiProperty({ example: 'Auth', type: 'string' })
+  @ApiProperty()
   public type: string;
 
   constructor(

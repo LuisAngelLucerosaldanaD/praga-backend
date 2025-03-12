@@ -1,6 +1,6 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { CompareHash } from '../../shared/infraestructure/security/security';
-import { UserDto } from '../infraestructure/dto/dtos';
+import { CompareHash } from '../../shared/infrastructure/security/security';
+import { UserDto } from '../infrastructure/dto/dtos';
 import { v4 } from 'uuid';
 
 export class User extends BaseTable {

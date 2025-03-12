@@ -1,5 +1,5 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { PlaceDTO } from '../infraestructure/dtos/dtos';
+import { PlaceDTO } from '../infrastructure/dtos/dtos';
 import { v4 } from 'uuid';
 
 export class Place extends BaseTable {

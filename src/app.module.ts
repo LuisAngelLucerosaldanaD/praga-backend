@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/infraestructure/auth.module';
-import { UserModule } from './users/infraestructure/user.module';
+import { AuthModule } from './auth/infrastructure/auth.module';
+import { UserModule } from './users/infrastructure/user.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './shared/infraestructure/guards/auth.guard';
-import { RoleModule } from './roles/infraestructure/role.module';
-import { SecurityModule } from './shared/infraestructure/security/security.module';
-import { EventsModule } from './events/infraestructure/events.module';
-import { TicketsModule } from './tickets/infraestructure/tickets.module';
-import { FilesModule } from './files/infraestructure/files.module';
-import { PlacesModule } from './places/infraestructure/places.module';
+import { AuthGuard } from './shared/infrastructure/guards/auth.guard';
+import { RoleModule } from './roles/infrastructure/role.module';
+import { SecurityModule } from './shared/infrastructure/security/security.module';
+import { EventsModule } from './events/infrastructure/events.module';
+import { TicketsModule } from './tickets/infrastructure/tickets.module';
+import { FilesModule } from './files/infrastructure/files.module';
+import { PlacesModule } from './places/infrastructure/places.module';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({

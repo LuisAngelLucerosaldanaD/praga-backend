@@ -1,47 +1,63 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { EventDTO } from '../infraestructure/dtos/dtos';
+import { EventDTO } from '../infrastructure/dtos/dtos';
 import { Event } from '../domain/event';
 import { IResponse } from '../../shared/domain/IResponse';
 import { EventsRepository } from '../domain/events.repository';
-import { validate } from 'uuid';
+import { v4, validate } from 'uuid';
 import { PlacesRepository } from '../../places/domain/places.repository';
+import { ApplicationService as fileService } from '../../files/application/application.service';
+import { FilesEventsRepository } from '../../files-events/domain/files_events.repository';
+import { FilesEvent } from '../../files-events/domain/files_event';
+import { FileDTO } from '../../files/infrastructure/dtos/dtos';
 
 @Injectable()
 export class ApplicationService {
   constructor(
     private readonly _repository: EventsRepository,
     private readonly _placeRepository: PlacesRepository,
+    private readonly _filesAppService: fileService,
+    private readonly _filesEventsRepository: FilesEventsRepository,
   ) {}
 
   public async createEvent(event: EventDTO, user: string): Promise<IResponse> {
     const newEvent = Event.parseDTO(event);
     newEvent.user_creator = user;
-    if (!newEvent.isValidate()) {
-      return {
-        error: true,
-        message: 'Invalid data to create event',
-        data: null,
-        code: HttpStatus.BAD_REQUEST,
-        type: 'event',
-      };
-    }
 
     try {
       const isCreated = await this._repository.createEvent(newEvent);
-      if (isCreated) {
+      if (!isCreated) {
         return {
-          error: false,
-          message: 'Event created successfully',
-          data: newEvent,
-          code: HttpStatus.CREATED,
+          error: true,
+          message: 'Failed to create event',
+          data: null,
+          code: HttpStatus.ACCEPTED,
           type: 'event',
         };
       }
+
+      for await (const image of event.images) {
+        const file = new FileDTO(image.name, image.file);
+        const res = await this._filesAppService.createFile(file, user);
+        if (res.error) {
+          return {
+            error: true,
+            message: 'Failed to create event file',
+            data: null,
+            code: HttpStatus.ACCEPTED,
+            type: 'event',
+          };
+        }
+
+        const rel = new FilesEvent(v4(), image.type, newEvent.id, res.data);
+        rel.user_creator = user;
+        await this._filesEventsRepository.createFilesEvent(rel);
+      }
+
       return {
-        error: true,
-        message: 'Failed to create event',
-        data: null,
-        code: HttpStatus.ACCEPTED,
+        error: false,
+        message: 'Event created successfully',
+        data: newEvent,
+        code: HttpStatus.CREATED,
         type: 'event',
       };
     } catch (error) {
@@ -57,15 +73,6 @@ export class ApplicationService {
 
   public async updateEvent(event: EventDTO): Promise<IResponse<Event>> {
     const newEvent = Event.parseDTO(event);
-    if (!newEvent.isValidate()) {
-      return {
-        error: true,
-        message: 'Invalid data to update event',
-        data: null,
-        code: HttpStatus.BAD_REQUEST,
-        type: 'event',
-      };
-    }
 
     try {
       const isUpdated = await this._repository.updateEvent(newEvent);
@@ -96,23 +103,45 @@ export class ApplicationService {
     }
   }
 
-  public async getEventById(id: string): Promise<IResponse<Event>> {
+  public async getEventById(id: string): Promise<IResponse<EventDTO>> {
     try {
       const event = await this._repository.getEventById(id);
-      if (event) {
+      if (!event) {
         return {
-          error: false,
-          message: 'Event found',
-          data: event,
-          code: HttpStatus.OK,
+          error: true,
+          message: 'Event not found',
+          data: null,
+          code: HttpStatus.NOT_FOUND,
           type: 'event',
         };
       }
+
+      const data: EventDTO = {
+        id: event.id,
+        name: event.name,
+        slogan: event.slogan,
+        capacity: event.capacity,
+        start_date: event.start_date.toISOString(),
+        end_date: event.end_date.toISOString(),
+        publication_date: event.publication_date.toISOString(),
+        pre_sale_date: event.pre_sale_date.toISOString(),
+        free_list_date: event.free_list_date.toISOString(),
+        images: [],
+      };
+      const files = await this._filesAppService.getFilesByEventId(event.id);
+      if (!files.error) {
+        data.images = files.data.map((img) => ({
+          name: img.name,
+          file: img.path,
+          type: 0,
+        }));
+      }
+
       return {
-        error: true,
-        message: 'Event not found',
-        data: null,
-        code: HttpStatus.NOT_FOUND,
+        error: false,
+        message: 'Event found',
+        data: data,
+        code: HttpStatus.OK,
         type: 'event',
       };
     } catch (error) {

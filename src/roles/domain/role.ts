@@ -1,5 +1,5 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { RoleDTO } from '../infraestructure/dtos/role';
+import { RoleDTO } from '../infrastructure/dtos/role';
 import { v4 } from 'uuid';
 
 export class Role extends BaseTable {

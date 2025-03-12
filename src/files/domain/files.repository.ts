@@ -10,4 +10,6 @@ export abstract class FilesRepository {
   abstract getFileById(id: string): Promise<File | null>;
 
   abstract getFiles(): Promise<File[]>;
+
+  abstract getFilesByEventId(eventId: string): Promise<File[]>;
 }

@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RolesRepository } from '../domain/roles.repository';
-import { RoleDTO } from '../infraestructure/dtos/role';
+import { RoleDTO } from '../infrastructure/dtos/role';
 import { IResponse } from '../../shared/domain/IResponse';
 import { Role } from '../domain/role';
 

@@ -1,5 +1,5 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { EventDTO } from '../infraestructure/dtos/dtos';
+import { EventDTO } from '../infrastructure/dtos/dtos';
 import { validate, v4 } from 'uuid';
 
 export class Event extends BaseTable {

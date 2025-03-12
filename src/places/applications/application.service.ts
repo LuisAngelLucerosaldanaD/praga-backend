@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PlacesRepository } from '../domain/places.repository';
-import { PlaceDTO } from '../infraestructure/dtos/dtos';
+import { PlaceDTO } from '../infrastructure/dtos/dtos';
 import { IResponse } from '../../shared/domain/IResponse';
 import { Place } from '../domain/place';
 import { validate } from 'uuid';

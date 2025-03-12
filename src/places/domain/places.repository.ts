@@ -1,4 +1,4 @@
-import { PlaceDTO } from '../infraestructure/dtos/dtos';
+import { PlaceDTO } from '../infrastructure/dtos/dtos';
 import { Place } from './place';
 
 export abstract class PlacesRepository {

@@ -1,12 +1,10 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { FileDTO } from '../infraestructure/dtos/dtos';
-import { v4 } from 'uuid';
 
 export class File extends BaseTable {
   id: string;
   name: string;
   path: string;
-  format: string;
+  format: number;
   hash: string;
   size: number;
 
@@ -14,7 +12,7 @@ export class File extends BaseTable {
     id: string,
     name: string,
     path: string,
-    format: string,
+    format: number,
     hash: string,
     size: number,
     created_at?: Date,
@@ -39,17 +37,6 @@ export class File extends BaseTable {
     this.user_deleter = user_deleter;
   }
 
-  public static parseDTO(dto: FileDTO): File {
-    return new File(
-      dto.id || v4(),
-      dto.name,
-      dto.path,
-      dto.format,
-      dto.hash,
-      dto.size,
-    );
-  }
-
   public static parseQuery(query: any): File {
     return new File(
       query.id,
@@ -65,5 +52,17 @@ export class File extends BaseTable {
       query.user_creator,
       query.user_deleter,
     );
+  }
+}
+
+export class FileStorage {
+  name: string;
+  mimetype: string;
+  encoding: string;
+
+  constructor(name: string, mimetype: string, encoding: string) {
+    this.name = name;
+    this.mimetype = mimetype;
+    this.encoding = encoding;
   }
 }

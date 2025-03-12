@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { TicketsRepository } from '../domain/tickets.repository';
-import { TicketDTO } from '../infraestructure/dtos/dtos';
+import { TicketDTO } from '../infrastructure/dtos/dtos';
 import { IResponse } from '../../shared/domain/IResponse';
 import { Ticket } from '../domain/ticket';
 import { validate } from 'uuid';

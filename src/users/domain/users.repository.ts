@@ -12,4 +12,8 @@ export abstract class UsersRepository {
   abstract getUserByUsername(username: string): Promise<User | null>;
 
   abstract getUsers(): Promise<User[]>;
+
+  abstract updateFailedAttempts(id: string, attempts: number): Promise<boolean>;
+
+  abstract blockUser(id: string): Promise<boolean>;
 }

@@ -1,22 +1,58 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { FilesRepository } from '../domain/files.repository';
-import { FileDTO } from '../infraestructure/dtos/dtos';
+import { FileDTO } from '../infrastructure/dtos/dtos';
 import { IResponse } from '../../shared/domain/IResponse';
-import { File } from '../domain/file';
+import { File, FileStorage } from '../domain/file';
+import { FilesStorageRepository } from '../domain/files.storage.repository';
+import { v4 } from 'uuid';
+import {
+  fileMimeType,
+  fileSize,
+  HashFile,
+} from '../../shared/infrastructure/security/security';
 
 @Injectable()
 export class ApplicationService {
-  constructor(private readonly _repository: FilesRepository) {}
+  constructor(
+    private readonly _repository: FilesRepository,
+    private readonly _storageRepo: FilesStorageRepository,
+  ) {}
 
-  public async createFile(dto: FileDTO, user: string): Promise<IResponse> {
-    const file = File.parseDTO(dto);
-    file.user_creator = user;
+  public async createFile(
+    dto: FileDTO,
+    user: string,
+  ): Promise<IResponse<string>> {
     try {
+      const fileStorage = new FileStorage(
+        dto.name,
+        fileMimeType(dto.encoding),
+        dto.encoding,
+      );
+      const uploaded = await this._storageRepo.upload(fileStorage);
+      if (!uploaded) {
+        return new IResponse(
+          true,
+          '',
+          'Error uploading file',
+          HttpStatus.ACCEPTED,
+          'file',
+        );
+      }
+
+      const file = new File(
+        v4(),
+        dto.name,
+        uploaded.Location,
+        7,
+        HashFile(dto.encoding),
+        fileSize(dto.encoding),
+      );
+      file.user_creator = user;
       const isCreated = await this._repository.createFile(file);
       if (isCreated) {
         return new IResponse(
           false,
-          true,
+          file.id,
           'File created successfully',
           HttpStatus.CREATED,
           'file',
@@ -25,7 +61,7 @@ export class ApplicationService {
 
       return new IResponse(
         true,
-        false,
+        '',
         'Error creating file',
         HttpStatus.ACCEPTED,
         'file',
@@ -33,41 +69,8 @@ export class ApplicationService {
     } catch (e) {
       return new IResponse(
         true,
-        false,
+        '',
         'An error occurred while creating the, err: ' + e,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        'file',
-      );
-    }
-  }
-
-  public async updateFile(dto: FileDTO, user: string): Promise<IResponse> {
-    const file = File.parseDTO(dto);
-    file.user_creator = user;
-    try {
-      const isUpdated = await this._repository.updateFile(file);
-      if (isUpdated) {
-        return new IResponse(
-          false,
-          true,
-          'File updated successfully',
-          HttpStatus.OK,
-          'file',
-        );
-      }
-
-      return new IResponse(
-        true,
-        false,
-        'Error updating file',
-        HttpStatus.ACCEPTED,
-        'file',
-      );
-    } catch (e) {
-      return new IResponse(
-        true,
-        false,
-        'An error occurred while updating the file, err: ' + e,
         HttpStatus.INTERNAL_SERVER_ERROR,
         'file',
       );
@@ -151,6 +154,27 @@ export class ApplicationService {
         true,
         [],
         'An error occurred while getting the files, err: ' + e,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'file',
+      );
+    }
+  }
+
+  public async getFilesByEventId(eventId: string): Promise<IResponse<File[]>> {
+    try {
+      const files = await this._repository.getFilesByEventId(eventId);
+      return new IResponse(
+        false,
+        files,
+        'Files found successfully',
+        HttpStatus.OK,
+        'file',
+      );
+    } catch (e) {
+      return new IResponse(
+        true,
+        [],
+        'An error occurred while getting the files, err:' + e,
         HttpStatus.INTERNAL_SERVER_ERROR,
         'file',
       );

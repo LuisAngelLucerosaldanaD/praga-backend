@@ -1,5 +1,5 @@
 import { BaseTable } from '../../shared/domain/base-table';
-import { TicketDTO } from '../infraestructure/dtos/dtos';
+import { TicketDTO } from '../infrastructure/dtos/dtos';
 import { v4 } from 'uuid';
 
 export class Ticket extends BaseTable {
